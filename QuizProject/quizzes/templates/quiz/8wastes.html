@@ -1,0 +1,39 @@
+{% extends 'quiz/base.html' %}
+
+{% block title %}8 Wastes Quiz{% endblock %}
+{%block navbar_custom %}
+    <h2 class="text-white">8 Wastes </h2>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                
+                <li class="nav-item custom-button">
+                  
+                    <a href="{%url 'quizzes:home' %}" class="nav-link text-white">Return Home</a>
+                 
+                </li>
+                <li class="nav-item custom-te">
+                    <button id="questionCounter" class="btn btn-dark rounded-pill btn-xl-black">1 / 8</button>
+                </li>
+                
+            </ul>
+        </div>
+{% endblock %}
+{% block content %}
+<div class="custom-card">
+        
+    <div class="card-body">
+     
+            <div class="">
+                <div id="quiz-container"></div>
+            </div> 
+    </div>
+
+</div>
+<br>
+<button id="submit" class="submit-button btn btn-danger float-right">Submit</button>
+<div id="result" class="result"></div>
+<div id="urlHolder" data-home-url="{% url 'quizzes:home' %}" style="display:none;"></div>
+{% endblock %}

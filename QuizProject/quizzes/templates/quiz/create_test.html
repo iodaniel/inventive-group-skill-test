@@ -1,0 +1,181 @@
+{% extends 'quiz/base.html' %}
+
+{% block title %}Create a test{% endblock %}
+{% block navbar_custom-create %}
+<a class="navbar-brand" href="{% url 'quizzes:home' %}">The Inventive Group - Training Modules</a>
+<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+</button>
+<div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav ml-auto">
+        <li class="nav-item custom-button">
+            <a class="nav-link text-white" href="{% url 'quizzes:home' %}">All Test</a>
+        </li>
+        <li class="nav-item custom-te">
+            <a class="btn btn-light rounded-pill btn-xl" href="{% url 'quizzes:create_test' %}" onclick="showCustomQuizScreen()">Create a Test</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="custom-card" style="height: auto;">
+    <div class="card-body">
+        <form method="post" id="test-form">
+            <p class="font-weight-bold">Test Name</p>
+            {% csrf_token %}
+            <input type="text" name="test_name" id="test_name" class="form-control" placeholder="Enter test name" required>
+            <br>
+            <div id="questions">
+                <div class="question-form" id="initial-container" style="background-color: salmon; color: white; padding: 10px; margin-bottom: 40px; text-align: center;">
+                    <button type="button" id="cancel-question" class="btn btn-danger" style="display: none; padding: 5px 20px;">Cancel</button>
+                    <button type="button" id="add-question" class="btn btn-secondary" style="padding: 5px 20px;">Add Question</button>
+                </div>
+            </div>
+            <br><br>
+            <h5 class="text-center font-weight-bold">Total Test Questions: <span id="question-count">0</span></h5>
+
+            <button type="submit" class="btn btn-danger btn-lg btn-block">Save Test</button>
+        </form>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    let formIdx = 0;
+
+    function createQuestionForm(index) {
+        return `
+        <div class="question-form" style="background-color: salmon; padding: 10px; ">
+            <label style="color: white;">Question</label>
+            <input type="text" name="question_text_${index}" class="form-control question-input" style="background-color: #ffe4e1;" placeholder="Enter question" required>
+            <br>
+            <div class="text-center" style="margin: 20px 0;">
+                <span style="background-color: gray; color: white; padding: 5px 20px; border-radius: 20px;">Write answers and select which is correct</span>
+            </div>
+            <label style="color: white;">Answer A</label>
+            <div class="input-group">
+                <input type="text" name="answer_a_${index}" class="form-control answer-input" placeholder="Enter answer A" required>
+                <div class="input-group-append">
+                    <div class="input-group-text" style="background-color:salmon;">
+                        <input type="radio" name="correct_answer_${index}" value="a">
+                    </div>
+                </div>
+            </div>
+            <label style="color: white;">Answer B</label>
+            <div class="input-group">
+                <input type="text" name="answer_b_${index}" class="form-control answer-input" placeholder="Enter answer B" required>
+                <div class="input-group-append">
+                    <div class="input-group-text" style="background-color:salmon;">
+                        <input type="radio" name="correct_answer_${index}" value="b">
+                    </div>
+                </div>
+            </div>
+            <label style="color: white;">Answer C</label>
+            <div class="input-group">
+                <input type="text" name="answer_c_${index}" class="form-control answer-input" placeholder="Enter answer C" required>
+                <div class="input-group-append">
+                    <div class="input-group-text" style="background-color:salmon;">
+                        <input type="radio" name="correct_answer_${index}" value="c">
+                    </div>
+                </div>
+            </div>
+            <label style="color: white;">Answer D</label>
+            <div class="input-group">
+                <input type="text" name="answer_d_${index}" class="form-control answer-input" placeholder="Enter answer D" required>
+                <div class="input-group-append">
+                    <div class="input-group-text" style="background-color:salmon;">
+                        <input type="radio" name="correct_answer_${index}" value="d">
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    document.getElementById('add-question').addEventListener('click', function () {
+        const questionContainer = document.getElementById('questions');
+        const initialContainer = document.getElementById('initial-container');
+
+        const newForm = document.createElement('div');
+        newForm.innerHTML = createQuestionForm(formIdx);
+        questionContainer.insertBefore(newForm, initialContainer);
+        formIdx++;
+
+        updateQuestionCount();
+
+        // Move the add button to the end of the question container
+        initialContainer.style.display = 'block';
+        initialContainer.style.marginBottom = '10px';
+        questionContainer.appendChild(initialContainer);
+        document.getElementById('cancel-question').style.display = 'inline-block';
+    });
+
+    document.getElementById('cancel-question').addEventListener('click', function () {
+        const questions = document.querySelectorAll('.question-form');
+        if (questions.length > 1) {
+            questions[questions.length - 2].remove();
+            updateQuestionCount();
+        }
+        if (questions.length <= 1) {
+            document.getElementById('cancel-question').style.display = 'none';
+        }
+    });
+
+    function updateQuestionCount() {
+        const count = document.querySelectorAll('.question-form').length - 1; // Subtract 1 for the initial add button container
+        document.getElementById('question-count').textContent = count;
+        const initialContainer = document.getElementById('initial-container');
+        initialContainer.style.display = count > 0 ? 'block' : 'block';
+        if (count === 0) {
+            document.getElementById('cancel-question').style.display = 'none';
+        }
+    }
+
+    function validateForm() {
+        const testName = document.getElementById('test_name').value.trim();
+        if (!testName) {
+            alert('Please enter the test name.');
+            return false;
+        }
+
+        const questions = document.querySelectorAll('.question-form');
+        if (questions.length <= 1) {
+            alert('Please add at least one question.');
+            return false;
+        }
+
+        for (let i = 0; i < questions.length - 1; i++) {
+            const questionText = questions[i].querySelector('.question-input').value.trim();
+            const answers = questions[i].querySelectorAll('.answer-input');
+            const correctAnswer = questions[i].querySelector('input[type="radio"]:checked');
+
+            if (!questionText) {
+                alert(`Please enter the text for Question ${i + 1}.`);
+                return false;
+            }
+
+            for (let answer of answers) {
+                if (!answer.value.trim()) {
+                    alert(`Please enter all answers for Question ${i + 1}.`);
+                    return false;
+                }
+            }
+
+            if (!correctAnswer) {
+                alert(`Please select the correct answer for Question ${i + 1}.`);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    document.getElementById('test-form').addEventListener('submit', function (event) {
+        if (!validateForm()) {
+            event.preventDefault();
+        }
+    });
+
+    updateQuestionCount();
+});
+</script>
+{% endblock %}
+

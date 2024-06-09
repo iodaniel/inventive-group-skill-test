@@ -1,0 +1,51 @@
+{% extends 'quiz/base.html' %}
+
+{% block title %}Custom Test{% endblock %}
+{% block navbar_custom %}
+    <h2 class="text-white">{{ test.name }}</h2>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item custom-button">
+                <a href="{% url 'quizzes:home' %}" class="nav-link text-white">Return Home</a>
+            </li>
+            <li class="nav-item custom-te">
+                <button id="questionCounter-custom" class="btn btn-dark rounded-pill btn-xl-black">1 / {{ questions|length }}</button>
+            </li>
+        </ul>
+    </div>
+{% endblock %}
+
+{% block content %}
+<div class="custom-card" style="height: 500px;">
+    <div class="card-body">
+        <div id="quiz-container-custom"></div>
+    </div>
+</div>
+<br>
+<button id="submit-custom" class="submit-button btn btn-danger float-right">Submit</button>
+<div id="result-custom" class="result"></div>
+<div id="urlHolder-custom" data-home-url="{% url 'quizzes:home' %}" style="display:none;"></div>
+<script type="application/json" id="questions-data-custom">
+    {
+        "questions": [
+            {% for question in questions %}
+            {
+                "question": "{{ question.text|escapejs }}",
+                "options": [
+                    "a. {{ question.option_a|escapejs }}",
+                    "b. {{ question.option_b|escapejs }}",
+                    "c. {{ question.option_c|escapejs }}",
+                    "d. {{ question.option_d|escapejs }}"
+                ],
+                "correct_answer": "{% if question.is_a_correct %}{{ question.option_a|escapejs }}{% elif question.is_b_correct %}{{ question.option_b|escapejs }}{% elif question.is_c_correct %}{{ question.option_c|escapejs }}{% elif question.is_d_correct %}{{ question.option_d|escapejs }}{% endif %}"
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ]
+    }
+</script>
+
+{% endblock %}
+

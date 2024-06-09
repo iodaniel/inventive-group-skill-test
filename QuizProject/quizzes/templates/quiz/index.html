@@ -1,0 +1,84 @@
+{% extends 'quiz/base.html' %}
+
+{% block title %}Home - Flash Cards Learning{% endblock %}
+{% block navbar_custom %}
+<a class="navbar-brand" href="{% url 'quizzes:home' %}">The Inventive Group - Training Modules</a>
+<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+</button>
+<div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav ml-auto">
+        <li class="nav-item custom-button">
+            <a class="btn btn-light rounded-pill btn-xl" href="{% url 'quizzes:home' %}">All Tests</a>
+        </li>
+        <li class="nav-item custom-te">
+            <a class="nav-link text-white" href="{% url 'quizzes:create_test' %}">Create a Test</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="custom-card" style="height: auto;">
+    <div class="card-body">
+        <button type="button" id="sort-ascending" class="btn btn-outline-danger">Sort Ascending</button>
+        <br><br>
+        <div class="row justify-content-center" id="card-container">
+            <div class="col-md-4 card-item">
+                <div class="card mb-4" style="height: 400px; background-color: #D3D3D3;">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
+                        <h4 class="card-title font-italic">8 Wastes</h4>
+                        <a href="{% url 'quizzes:waste' %}" class="btn btn-danger mt-3">Start Test</a>
+                    </div>
+                </div>
+            </div>
+            {% for test in tests %}
+            <div class="col-md-4 card-item">
+                <div class="card mb-4" style="height: 400px; background-color: #D3D3D3;">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
+                        <h4 class="card-title font-italic">{{ test.name }}</h4>
+                        <a href="{% url 'quizzes:custom' test.id %}" class="btn btn-danger mt-3">Start Test</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            <div class="col-md-4 card-item">
+                <div class="card mb-4" style="height: 400px; background-color: #D3D3D3;">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
+                        <h4 class="card-title font-italic">Lean Terminology</h4>
+                        <a href="{% url 'quizzes:lean' %}" class="btn btn-danger mt-3">Start Test</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const sortButton = document.getElementById('sort-ascending');
+    const cardContainer = document.getElementById('card-container');
+
+    sortButton.addEventListener('click', function () {
+        let cardItems = Array.from(cardContainer.getElementsByClassName('card-item'));
+        cardItems.sort((a, b) => {
+            const nameA = a.querySelector('.card-title').innerText.toUpperCase();
+            const nameB = b.querySelector('.card-title').innerText.toUpperCase();
+
+            // Primero números en orden ascendente, luego letras en orden ascendente
+            const isNumA = !isNaN(nameA.charAt(0));
+            const isNumB = !isNaN(nameB.charAt(0));
+            
+            if (isNumA && isNumB) return nameA.localeCompare(nameB);
+            if (isNumA) return -1;
+            if (isNumB) return 1;
+            return nameA.localeCompare(nameB);
+        });
+
+        cardItems.forEach(item => cardContainer.appendChild(item));
+    });
+});
+</script>
+{% endblock %}
+
+
